@@ -194,8 +194,9 @@ void print_vals(const T* vals,
    const char* prefix = "",
    const char* delim = " ",
    const char* suffix = "\n") {
+   std::cout << prefix; 
    for (int index = 0; index < num_vals; ++index) {
-      std::cout << "\n" << prefix << "Index " << index << ": " << vals[index] << ((index == num_vals - 1) ? "\n" : delim);
+      std::cout << vals[index] << ((index == num_vals - 1) ? "\n" : delim);
    }
    std::cout << suffix;
 }

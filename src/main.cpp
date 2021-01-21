@@ -1,67 +1,86 @@
 // C++ File for main
 
-#define MY_TEST_STRING 123
-#include "my_file_io_funcs.hpp"
+//#include <iostream>
+//#include <algorithm>
+#include "my_utils.hpp"
 
-void usage( const char* prog_name ) {
-   std::cout << "Usage: " << std::string{prog_name} << "<num values> <-e/--error>\n";
+void sort_nine( unsigned int* sorted, const unsigned int* vals, const bool& debug = false ) {
+   try {
+      if (!vals) {
+         throw std::runtime_error( "vals is nullptr." );
+      }
+      if (!sorted) {
+         throw std::runtime_error( "sorted is nullptr." );
+      }
+
+      if ( debug ) {
+         print_vals<unsigned int>( vals, 9, "Vals ", ", ", "\n" );
+      }
+
+      std::copy( vals, vals + 9, sorted );
+      std::sort( sorted, sorted + 9 );
+      
+      if ( debug ) {
+         print_vals<unsigned int>( sorted, 9, "Sorted ", ", ", "\n" );
+      }
+
+   } catch ( std::exception& ex ) {
+      throw std::runtime_error( std::string{__func__} + "(): " + ex.what() );
+   }
 }
 
 
+void flatten_by_nine( unsigned int* flattened_vals, const unsigned int** vals, 
+      const int& num_rows, const bool& debug = false ) {
+
+   try {
+      if (!vals) {
+         throw std::runtime_error( "vals is nullptr." );
+      }
+      if (!flattened_vals) {
+         throw std::runtime_error( "flattened_vals is nullptr." );
+      }
+
+      if ( debug ) {
+         for( int row_index = 0; row_index < num_rows; ++row_index ) {
+            print_vals<unsigned int>( &(vals[row_index][0]), 9, "Vals ", ", ", "\n" );
+         } 
+      }
+      
+      for( int row_index = 0; row_index < num_rows; ++row_index ) {
+         //std::copy( vals[row_index], vals[row_index] + 9, &(flattened_vals[row_index * 9]) );
+         for( int col_index = 0; col_index < 9; ++col_index ) {
+            flattened_vals[row_index * 9 + col_index] = vals[row_index][col_index];
+         } 
+      }
+
+      if ( debug ) {
+         print_vals<unsigned int>( &(flattened_vals[0]), num_rows * 9, "Flattened Vals ", ", ", "\n" );
+      }
+
+   } catch ( std::exception& ex ) {
+      throw std::runtime_error( std::string{__func__} + "(): " + ex.what() );
+   }
+
+}
+
 int main( int argc, char** argv ) {
    try {
-      std::string filename = "foo.bin";
+      
+      unsigned int vals[4][9] = {
+         { 9, 4, 7, 2, 3, 6, 5, 8, 1 },
+         { 2, 8, 4, 7, 1, 5, 6, 3, 9 },
+         { 1, 5, 6, 3, 9, 2, 8, 4, 7 }, 
+         { 5, 1, 7, 6, 3, 2, 9, 8, 4 }
+      };
+      unsigned int sorted[4][9];
+      unsigned int flattened_vals[36];
       bool debug = true;
-      int num_vals = 10;
-      bool inject_error = false;
       
-      if ( argc > 2 ) {
-         dout << "argv[2] = " << std::string{argv[ 2 ]} << "\n";
-         if ( ( !strcmp( argv[ 2 ], "-e" ) ) || ( !strcmp( argv[ 2 ], "--error" ) ) ) {
-            inject_error = true;
-         } else {
-            throw std::invalid_argument{std::string{"Invalid input: "} + std::string{argv[ 2 ]}};
-         }
-      } else if ( argc > 1 ) {
-         dout << "argv[1] = " << std::string{argv[ 1 ]} << "\n";
-         char* end_ptr = nullptr;
-         num_vals = (int)strtoul( argv[ 1 ], &end_ptr, 10 );
-         if ( *end_ptr != '\0' ) {
-            throw std::invalid_argument{std::string{"Invalid input: "} + std::string{argv[ 1 ]}};
-         }
-      }
+      flatten_by_nine( &(flattened_vals[0]), &(*vals[0]), debug );
+      sort_nine( &(sorted[0][0]), &(vals[0][0]), debug );
+      sort_nine( &(sorted[1][0]), &(vals[1][0]), debug );
 
-      std::string foo_str = "foo";
-      double foo_double = 3.141592653589793238462f;
-      dout << "Testing debug_cout: num_vals is "
-         << num_vals
-         << ", foo_str is "
-         << foo_str
-         << ", foo_double is "
-         << foo_double;
-
-      test_my_file_io_funcs( filename, num_vals, inject_error, debug );
-
-      int check_status = 1;
-      std::string check_status_str = decode_status( check_status );
-      std::cout << "Check Status is " << check_status_str;
-
-      std::string test_string = "Split me up.";
-      auto split_strings = split_string( test_string, " " );
-      dout << "Test string is " << test_string << "\n";
-      for ( auto split_string: split_strings ) {
-         dout << "'" << split_string << "'\n";
-      }
-      dout << "\n\n";
-
-      test_string = "/home/user/path/to/split/up";
-      split_strings = split_string( test_string, "/" );
-      dout << "Test string is " << test_string << "\n";
-      for ( auto split_string: split_strings ) {
-         dout << "'" << split_string << "'\n";
-      }
-      dout << "\n\n";
-      
       return EXIT_SUCCESS;
 
    } catch ( std::exception& ex ) {
