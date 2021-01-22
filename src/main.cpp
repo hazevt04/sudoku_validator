@@ -81,9 +81,8 @@ int main( int argc, char** argv ) {
 
       flatten_by_nrows( &(flattened_vals[0]), vals, NRows, debug );
       
-      for( int row_index = 0; row_index < NRows; ++row_index ) {
-         sort_subset( &(sorted_flattened_vals[row_index * NColumns]), &(flattened_vals[row_index * NColumns]), NColumns, debug );
-      } 
+      sort_subset( &(sorted_flattened_vals[0]), 
+         &(flattened_vals[0]), NItems, debug );
 
       return EXIT_SUCCESS;
 
