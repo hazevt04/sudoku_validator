@@ -31,6 +31,7 @@ void sort_subset( unsigned int* sorted, const unsigned int* vals, const int& num
    } catch ( std::exception& ex ) {
       throw std::runtime_error( std::string{__func__} + "(): " + ex.what() );
    }
+
 }
 
 
