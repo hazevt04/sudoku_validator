@@ -1,6 +1,10 @@
 // C++ File for main
 
-#include "my_utils.hpp"
+#include <iostream>
+
+#ifndef dout
+#  define dout debug && std::cout
+#endif
 
 constexpr int NRows = 9;
 constexpr int NColumns = 9;
@@ -10,6 +14,29 @@ constexpr int NBlockRows = 3;
 constexpr int NBlockColumns = 3;
 
 constexpr unsigned int CSum = ( NRows * ( NRows + 1 ) )/2;
+
+bool check_rows_and_cols( const unsigned int vals[][NColumns], const bool& debug = false ) {
+   int rchecksum = CSum;
+   int cchecksum = CSum;
+   for( int rindex = 0; rindex < NColumns; ++rindex ) {
+      cchecksum = CSum;
+      rchecksum = CSum;
+      for( int cindex = 0; cindex < NRows; ++cindex ) {
+         if ( (vals[rindex][cindex] == 0) || (vals[cindex][rindex] == 0) ) {
+            return false;
+         }
+         rchecksum -= (int)vals[rindex][cindex];
+         cchecksum -= (int)vals[cindex][rindex];
+         dout << __func__ << "(): Row check: vals[" << rindex << "][" << cindex << "] = " << vals[rindex][cindex] << "\n"; 
+         dout << __func__ << "(): Column check: vals[" << cindex << "][" << rindex << "] = " << vals[rindex][cindex] << "\n"; 
+         dout << __func__ << "(): row checksum is " << rchecksum << "\n";
+         dout << __func__ << "(): col checksum is " << cchecksum << "\n";
+      }
+      dout << "\n";
+   }
+   return ((rchecksum == 0) && (cchecksum == 0));
+}
+
 
 bool check_region( int check_sum, const unsigned int region[][NColumns],
       const int& row_size, const int& col_size, 
@@ -33,32 +60,31 @@ bool check_region( int check_sum, const unsigned int region[][NColumns],
    return ( check_sum == 0 );
 }
 
-
-bool validSolution( unsigned int board[9][9] ) {
-
-   for( int row_num = 0; row_num < NRows; ++row_num ) {
-      if ( !check_region( CSum, board, 9, 1, row_num, 0 ) ) {
-         std::cout << __func__ << "(): Invalid solution due to row " << row_num << "\n"; 
-         return false;
-      }
-   } 
-   
-   for( int col_num = 0; col_num < NColumns; ++col_num ) {
-      if ( !check_region( CSum, board, 1, 9, 0, col_num ) ) {
-         std::cout << __func__ << "(): Invalid solution due to column " << col_num << "\n"; 
-         return false;
-      }
-   } 
-   
+bool check_row_and_col_blocks( const unsigned int board[][NColumns], const bool& debug = false ) {
    for( int brow_num = 0; brow_num < NBlockRows; ++brow_num ) {
       for( int bcol_num = 0; bcol_num < NBlockColumns; ++bcol_num ) {
-         if ( !check_region( CSum, board, 3, 3, brow_num * NBlockColumns, bcol_num * NBlockRows ) ) {
+         if ( !check_region( CSum, board, 3, 3, brow_num * NBlockColumns, bcol_num * NBlockRows, debug ) ) {
             std::cout << __func__ << "(): Invalid solution due to block row " << brow_num 
                << ", block column " << bcol_num << "\n"; 
             return false;
          }
       } // for( int bcol_num = 0; bcol_num < NBlockRows; ++bcol_num ) {
    } // for( int brow_num = 0; brow_num < NBlockColumns; ++brow_num ) {
+
+   return true;
+}
+
+
+bool validSolution( unsigned int board[9][9] ) {
+
+   if ( !check_rows_and_cols( board ) ) {
+      return false;
+   }
+   
+   if ( !check_row_and_col_blocks( board ) ) {
+      return false;
+   }
+      
    return true;
 }
 
